@@ -1,9 +1,11 @@
 package com.plexteq.cloud.gatewayservice;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
@@ -37,9 +39,13 @@ interface ProductsClient {
 
 }
 
+@RefreshScope
 @RestController
 @RequestMapping("/api")
 class ApiController {
+
+    @Value("${message}")
+    private String message;
 
     @Autowired
     private ProductsClient productsClient;
@@ -47,6 +53,11 @@ class ApiController {
     @GetMapping("/product-titles")
     public Collection<String> getProductTitles() {
         return productsClient.fetchProducts().getContent().stream().map(Product::getTitle).collect(Collectors.toSet());
+    }
+
+    @GetMapping("/message")
+    public String getMessage() {
+        return message;
     }
 
 }
